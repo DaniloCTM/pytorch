@@ -97,3 +97,33 @@ def test_padding_same_with_stride_not_one():
             bias=True,
             padding_mode="zeros",
         )
+
+class TestSoftmax(unittest.TestCase):
+    def test_softmax_simple_vector(self):
+        input_vector = [1, 2, 3]
+        expected_output = np.exp(input_vector) / np.sum(np.exp(input_vector))
+        result = softmax(input_vector)
+        self.assertTrue(np.allclose(result, expected_output))
+    
+    def test_softmax_negative_values(self):
+        input_vector = [-1, 0, 1]
+        expected_output = np.exp(input_vector) / np.sum(np.exp(input_vector))
+        result = softmax(input_vector)
+        self.assertTrue(np.allclose(result, expected_output))
+    
+    def test_softmax_large_values(self):
+        input_vector = [1000, 1001, 1002]
+        expected_output = np.exp(input_vector - np.max(input_vector)) / np.sum(np.exp(input_vector - np.max(input_vector)))
+        result = softmax(input_vector)
+        self.assertTrue(np.allclose(result, expected_output))
+
+    def test_softmax_2d_matrix(self):
+        input_matrix = [[1, 2, 3], [1, 2, 3]]
+        expected_output = np.exp(input_matrix) / np.sum(np.exp(input_matrix), axis=1, keepdims=True)
+        result = softmax(input_matrix)
+        self.assertTrue(np.allclose(result, expected_output))
+
+    def test_softmax_invalid_input(self):
+        input_tensor = np.random.rand(2, 2, 2) 
+        with self.assertRaises(ValueError):
+            softmax(input_tensor)
